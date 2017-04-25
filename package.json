@@ -1,0 +1,28 @@
+{
+  "name": "mocoolka-config",
+  "version": "0.5.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha  ./test/*.js",
+    "jsdoc": "jsdoc -c jsdoc.json"
+  },
+  "keywords": [
+    "mocoolka",
+    "setting",
+    "micro service"
+  ],
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "docdash" :"*"
+  },
+  "author": "fastspeeed@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "mocoolka-tools": "^0.5.20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mocoolka/mocoolka-setting.git"
+  }
+}
