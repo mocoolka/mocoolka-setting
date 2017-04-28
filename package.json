@@ -1,26 +1,33 @@
 {
-  "name": "mocoolka-config",
-  "version": "0.5.0",
+  "name": "mocoolka-setting",
+  "version": "0.5.1",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha  ./test/*.js",
-    "jsdoc": "jsdoc -c jsdoc.json"
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec",
+    "docs": "jsdoc -c jsdoc.json",
+    "start" :"node ./lib/cli.js --seneca.log.error"
   },
   "keywords": [
     "mocoolka",
     "setting",
     "micro service"
   ],
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "docdash" :"*"
+  "bin": {
+    "mocoolka_setting": "./lib/cli.js"
   },
-  "author": "fastspeeed@gmail.com",
-  "license": "MIT",
   "dependencies": {
     "mocoolka-tools": "^0.5.20"
   },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "docdash" :"*",
+    "istanbul": "^1.1.0-alpha.1",
+    "mocha": "^3.1.2",
+    "minimist": "^1.2.0"
+  },
+  "author": "fastspeeed@gmail.com",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mocoolka/mocoolka-setting.git"

@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-mocoolka-setting.html">mocoolka-setting</a><ul class='methods'><li data-type='method'><a href="module-mocoolka-setting.html#~applyModuleSetting">applyModuleSetting</a></li><li data-type='method'><a href="module-mocoolka-setting.html#~getAppSetting">getAppSetting</a></li><li data-type='method'><a href="module-mocoolka-setting.html#~getModuleSetting">getModuleSetting</a></li><li data-type='method'><a href="module-mocoolka-setting.html#~init">init</a></li></ul></li><li><a href="module-mocoolka-setting-service.html">mocoolka-setting-service</a><ul class='methods'><li data-type='method'><a href="module-mocoolka-setting-service.html#~startSettingService">startSettingService</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-mocoolka-setting.html">mocoolka-setting</a><ul class='methods'><li data-type='method'><a href="module-mocoolka-setting.html#~applyModuleSettingPromise">applyModuleSettingPromise</a></li><li data-type='method'><a href="module-mocoolka-setting.html#~getAppSettingPromise">getAppSettingPromise</a></li><li data-type='method'><a href="module-mocoolka-setting.html#~getModuleSettingPromise">getModuleSettingPromise</a></li><li data-type='method'><a href="module-mocoolka-setting.html#~initPromise">initPromise</a></li></ul></li><li><a href="module-mocoolka-setting-service.html">mocoolka-setting-service</a><ul class='methods'><li data-type='method'><a href="module-mocoolka-setting-service.html#~startSettingService">startSettingService</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -37,13 +37,14 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// © Copyright Mocoolka Corporation 2015,2017.
+            <pre class="prettyprint source linenums"><code>
+// © Copyright Mocoolka Corporation 2015,2017.
 // Node module: mocoolka-tools
 // LICENSE: MIT
 
 /** @module mocoolka-setting */
 let { fileTools, globalTools, objectTools, errorTools, typeTools, watchFileTools }
-= require('mocoolka-tools');
+  = require('mocoolka-tools');
 
 /**
  * This callback is displayed as part of the getModuleSetting member.
@@ -60,24 +61,25 @@ let { fileTools, globalTools, objectTools, errorTools, typeTools, watchFileTools
  * @property {Object} [msg.moduleDefaultSetting] - default setting
  * @param {applyModuleSettingCallback} callback
  */
-const applyModuleSetting = (msg, callback) => {
-  try {
-    if (!typeTools.isFunction(callback))
-      return;
-    errorTools.validateJsonSchema({ schema: settingManager.schemas.applyModuleSetting, data: msg });
+const applyModuleSettingPromise = (msg) => (
+  new Promise(function (resolve, reject) {
+    try {
+      errorTools.validateJsonSchema
+      ({ schema: settingManager.schemas.applyModuleSetting, data: msg });
 
-    const moduleName = msg.moduleName;
-    const moduleDefaultSetting = msg.moduleDefaultSetting;
-    let moduleSetting = objectTools.mergeAll(false, true, moduleDefaultSetting, _getAppSetting(moduleName));
-    globalTools.setGlobalItem(moduleName, moduleSetting);
-    if (callback)
-      callback(null, moduleSetting);
-  }
-  catch (ex) {
-    callback(ex);
-  }
+      const moduleName = msg.moduleName;
+      const moduleDefaultSetting = msg.moduleDefaultSetting;
+      let moduleSetting = objectTools.mergeAll
+      (false, true, moduleDefaultSetting, _getAppSetting(moduleName));
+      globalTools.setGlobalItem(moduleName, moduleSetting);
+      resolve({ result: moduleSetting });
+    }
+    catch (error) {
+      reject(error);
+    }
 
-};
+  })
+);
 
 /**
  * This callback is displayed as part of the getModuleSetting member.
@@ -93,35 +95,37 @@ const applyModuleSetting = (msg, callback) => {
  * @property {string} [msg.itemName] - property name in module setting  .if value is null return module setting
  * @param {getModuleSettingCallback} callback - return module setting
  */
-const getModuleSetting = (msg, callback) => {
-  try {
-    if (!typeTools.isFunction(callback))
-      return;
+const getModuleSettingPromise = (msg) => (
+  new Promise(function (resolve, reject) {
+    try {
 
-    errorTools.validateJsonSchema({ schema: settingManager.schemas.getModuleSetting, data: msg });
+      errorTools.validateJsonSchema({ schema: settingManager.schemas.getModuleSetting, data: msg });
 
-    let result;
-    const moduleName = msg.moduleName;
-    const itemName = msg.itemName;
-    let moduleSetting = globalTools.getGlobalItem(moduleName);
-    if (moduleSetting) {
-      if (itemName) {
-        if (moduleSetting[itemName]) {
-          result = moduleSetting[itemName];
+      let result;
+      const moduleName = msg.moduleName;
+      const itemName = msg.itemName;
+      let moduleSetting = globalTools.getGlobalItem(moduleName);
+      if (moduleSetting) {
+        if (itemName) {
+          if (moduleSetting[itemName]) {
+            result = moduleSetting[itemName];
+          } else {
+            result = null;
+          }
         } else {
-          result = null;
+          result = moduleSetting;
         }
+      } else {
+        result = null;
       }
-    }
 
-    result = moduleSetting;
-    console.log(result);
-    callback(null, result);
-  }
-  catch (ex) {
-    callback(ex);
-  }
-};
+      resolve({ result: result });
+    }
+    catch (ex) {
+      reject(ex);
+    }
+  })
+);
 
 /**
  * This callback is displayed as part of the init member.
@@ -135,51 +139,53 @@ const getModuleSetting = (msg, callback) => {
  * @property {string} options.rootPath - root path contain 'app.mk-setting.json'
  * @param {initCallback} callback
  */
-function init(options, callback) {
-  try {
-    options = settingManager.initOptions || options;
+const initPromise = (options)=> (
+  new Promise(function (resolve, reject) {
+    try {
+      options = settingManager.initOptions || options;
 
-    errorTools.validateJsonSchema({
-      schema: settingManager.schemas.init,
-      data: options,
-    });
+      errorTools.validateJsonSchema({
+        schema: settingManager.schemas.init,
+        data: options,
+      });
 
-    const rootPath = options.rootPath;
+      const rootPath = options.rootPath;
 
-    errorTools.directoryNotExist(rootPath);
+      errorTools.directoryNotExist(rootPath);
 
-    settingManager.setting.filePath = rootPath;
-    let appSettingPath = fileTools.path(rootPath, settingManager.setting.fileName);
-    if (fileTools.fileExist(appSettingPath)) {
-      settingManager.appSetting = fileTools.openFile(appSettingPath);
-      watchFileTools.watchDirectory(rootPath, function (event, f, curr, prev) {
-        if (fileTools.fileExist(appSettingPath))
+      settingManager.setting.filePath = rootPath;
+      let appSettingPath = fileTools.path(rootPath, settingManager.setting.fileName);
+      if (fileTools.fileExist(appSettingPath)) {
         settingManager.appSetting = fileTools.openFile(appSettingPath);
-      }, { filter: function (name) {
+        watchFileTools.watchDirectory(rootPath, function (event, f, curr, prev) {
+          if (fileTools.fileExist(appSettingPath))
+            settingManager.appSetting = fileTools.openFile(appSettingPath);
+        }, {
 
-          return (fileTools.getFileName(name) === settingManager.setting.fileName);
-        }, interval: 5, });
-    } else {
-      settingManager.appSetting = {};
+          filter: function (name) {
+
+            return (fileTools.getFileName(name) === settingManager.setting.fileName);
+          }, interval: 5,
+        });
+      } else {
+        settingManager.appSetting = {};
+      }
+
+      applyModuleSettingPromise({
+        moduleName: settingManager.moduleName,
+        moduleDefaultSetting: settingManager.setting,
+      }).then(data=> {
+        settingManager.setting = data.result;
+        resolve();
+      }).catch(error=> {
+        reject(error);
+      });
     }
-
-    applyModuleSetting({
-      moduleName: settingManager.moduleName,
-      moduleDefaultSetting: settingManager.setting,
-    }, (errors, data)=> {
-      if (errors)
-        callback(errors);
-      settingManager.setting = data;
-      callback(null);
-
-    });
-  }
-  catch (ex) {
-    if (callback)
-       callback(ex);
-  }
-
-};
+    catch (error) {
+      reject(error);
+    }
+  })
+);
 
 /**
  * This callback is displayed as part of the getAppSetting manager.
@@ -192,9 +198,17 @@ function init(options, callback) {
  * get application setting
  * @param {getAppSettingCallback} callback - The callback that return application setting
  */
-const getAppSetting = ( callback) => {
-  callback(null, _getAppSetting());
-};
+const getAppSettingPromise = () => (
+  new Promise(function (resolve, reject) {
+    try {
+      resolve({ result: _getAppSetting() });
+    }
+    catch (error) {
+      reject(error);
+    }
+  })
+
+);
 
 /**
  * get application
@@ -219,46 +233,46 @@ const settingManager = {
     fileName: 'app.mk-setting.json',
     filePath: null,
   }, actions: {
-    applyModuleSetting,
-    getModuleSetting,
-    getAppSetting,
+    applyModuleSettingPromise,
+    getModuleSettingPromise,
+    getAppSettingPromise,
   },
   schemas: {
-      applyModuleSetting: {
-        properties: {
-          moduleName: {
-            type: 'string',
-          },
-          moduleDefaultSetting: {
-            type: 'object',
-            default: {},
-          },
+    applyModuleSetting: {
+      properties: {
+        moduleName: {
+          type: 'string',
         },
-        required: ['moduleName', 'moduleDefaultSetting'],
-      },
-      getModuleSetting: {
-        properties: {
-          moduleName: {
-            type: 'string',
-          },
-          itemName: {
-            type: 'string',
-          },
+        moduleDefaultSetting: {
+          type: 'object',
+          default: {},
         },
-        required: ['moduleName'],
       },
-      init: {
-        properties: {
-          rootPath: {
-            type: 'string',
-          },
-        },
-        required: ['rootPath'],
-      },
-
+      required: ['moduleName', 'moduleDefaultSetting'],
     },
+    getModuleSetting: {
+      properties: {
+        moduleName: {
+          type: 'string',
+        },
+        itemName: {
+          type: 'string',
+        },
+      },
+      required: ['moduleName'],
+    },
+    init: {
+      properties: {
+        rootPath: {
+          type: 'string',
+        },
+      },
+      required: ['rootPath'],
+    },
+
+  },
   appSetting: null,
-  init,
+  initPromise,
 };
 
 module.exports = settingManager;
@@ -275,7 +289,7 @@ module.exports = settingManager;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Apr 26 2017 06:21:51 GMT+0800 (中国标准时间) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Apr 28 2017 09:34:30 GMT+0800 (中国标准时间) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
