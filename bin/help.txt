@@ -1,0 +1,8 @@
+Usage:
+  
+  mksetting <arguments>
+  
+Arguments:
+
+  --path, -p      Relative path to contain 'app.mk-setting.json'
+  --help, -h      Print this help text

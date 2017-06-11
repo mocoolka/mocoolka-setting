@@ -1,0 +1,9 @@
+{
+  "title": "Mocoolka Setting Documentation",
+  "content": [
+    "README.md",
+    {"title": "Node.js API", "depth": 2},
+    "lib/setting.js",
+    "lib/service.js"
+  ]
+}

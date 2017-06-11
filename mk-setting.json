@@ -1,0 +1,13 @@
+{
+
+  "setting":{
+    "fileName": "app.mk-setting.json",
+    "filePath":"",
+    "service":{
+      "listen": {
+        "port": 9091
+      }
+    }
+  }
+
+}
